@@ -26,6 +26,9 @@ public class MainActivity extends AppCompatActivity {
     ListView listView;
     Boolean loggedIn = false;
     private SharedPreferences prefs;
+    private int CODE_SEND = 1234;
+    String str = "";
+    String[] values;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
         prefs = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
         // Defined Array values to show in ListView
-        String[] values = new String[]{"Singapore National Day is on 9 Aug",
+        values = new String[]{"Singapore National Day is on 9 Aug",
                 "Singapore is 53 years old",
                 "Theme is 'We are Singapore'"
         };
@@ -85,32 +88,20 @@ public class MainActivity extends AppCompatActivity {
                         // The parameter "which" is the item index
                         // clicked, starting from 0
                         public void onClick(DialogInterface dialog, int which) {
-                            String str = "";
                             if (which == 0) {
-//                                Intent intent = new Intent(Intent.ACTION_SENDTO);
-//                                intent.setType("text/plain");
-//                                intent.putExtra(Intent.EXTRA_SUBJECT, "Test Email from C347");
-//                                intent.putExtra(Intent.EXTRA_TEXT, "P11- KnowYourNatinalDay");
-//                                intent.setData(Uri.parse("mailto:jason_lim@rp.edu.sg"));
-//                                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-//                                startActivity(intent);
+                                Intent intent = new Intent(Intent.ACTION_SENDTO);
+                                intent.setType("message/rfc822");
+                                intent.putExtra(Intent.EXTRA_SUBJECT, "P11- KnowYourNatinalDay");
+                                intent.putExtra(Intent.EXTRA_TEXT, ""+values[0]+"\n"+values[1]+"\n"+values[2]);
+                                intent.setData(Uri.parse("mailto:jason_lim@rp.edu.sg"));
+                                startActivityForResult(intent, CODE_SEND);
                                 str =  "Email Sent";
                             } else {
-//                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + 81560848));
-//                                intent.putExtra("sms_body", "P11- KnowYourNatinalDay");
-//                                startActivity(intent);
+                                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse("sms:" + 81560848));
+                                intent.putExtra("sms_body", "P11- KnowYourNatinalDay\n"+values[0]+"\n"+values[1]+"\n"+values[2]);;
+                                startActivityForResult(intent, CODE_SEND);
                                 str =  "SMS Sent";
                             }
-                            Snackbar sb = Snackbar.make(listView, str, Snackbar.LENGTH_SHORT);
-
-                            sb.setAction("OK", new View.OnClickListener() {
-                                @Override
-                                public void onClick(View v) {
-
-                                }
-                            });
-
-                            sb.show();
                         }
                     });
             AlertDialog alertDialog = builder.create();
@@ -146,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
                     .setNegativeButton("Don't Know LAH", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
-                            finish();
                         }
                     });
             AlertDialog alertDialog = builder.create();
@@ -187,7 +177,7 @@ public class MainActivity extends AppCompatActivity {
                             if (etPassphrase.getText().toString().equals("738964")) {
                                 loggedIn = true;
                             } else {
-                                Toast.makeText(MainActivity.this, "Wrong access code.Try again!" + etPassphrase.getText().toString(), Toast.LENGTH_LONG).show();
+                                Toast.makeText(MainActivity.this, "Wrong access code:"+ etPassphrase.getText().toString()+".To get access code Please call 1234567" , Toast.LENGTH_LONG).show();
                                 finish();
                             }
                         }
@@ -195,11 +185,28 @@ public class MainActivity extends AppCompatActivity {
                     .setNegativeButton("No Access Code", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int id) {
+                            Toast.makeText(MainActivity.this, "No access code.To get access code Please call 1234567", Toast.LENGTH_LONG).show();
                             finish();
                         }
                     });
             AlertDialog alertDialog = builder.create();
             alertDialog.show();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == CODE_SEND){
+            Snackbar sb = Snackbar.make(listView, str, Snackbar.LENGTH_LONG);
+
+            sb.setAction("OK", new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                }
+            });
+
+            sb.show();
         }
     }
 }
